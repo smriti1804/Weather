@@ -1,0 +1,102 @@
+*{
+    padding: 0;
+    margin: 0;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5; /* light white */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background-color: #fafafa; /* dark white */
+    width: 900px;
+    margin: 40px auto;
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.head {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.head h1 {
+    margin-bottom: 12px;
+}
+
+.head p {
+    margin-bottom: 12px;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.588);
+}
+
+.form input {
+    padding: 5px;
+    width: 300px;
+    border: 2px solid #909090;
+    border-radius: 4px;
+}
+
+.form button {
+    padding: 7px;
+    border: none;
+    border-radius: 4px;
+    background-color: rgb(41, 144, 255);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.display {
+    padding: 15px;
+    text-align: center;
+    margin-top: 16px;
+    background-color:  #ebebeb; /* light white */
+    border-radius: 10px;
+}
+
+.display .weather .degree {
+    color: red;
+}
+
+.details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: 18px 24px;
+    margin-top: 24px;
+}
+
+.detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #c1c1c1;
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.detail h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+    text-align: left;
+}
+
+.detail p {
+    font-size: 1rem;
+    color: #666;
+    margin: 0;
+    text-align: right;
+}
