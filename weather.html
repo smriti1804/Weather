@@ -1,64 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Weather</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="/style.css">
 </head>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background: #f0f8ff;
-    padding: 40px;
-  }
-
-  h1 {
-    color: black;
-  }
-
-  .search-box {
-    margin-top:20px;
-  }
-
-  label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-  }
-
-  input {
-    padding: 8px;
-    width: 250px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-
-  button {
-    padding: 10px 12px;
-    margin-left: 8px;
-    border: none;
-    border-radius: 5px;
-    background-color: green;
-    color: white;
-    cursor: pointer;
-  }
-
-  button: hover {
-    background-color: #45a049;
-  }
-</style>
-
-
 <body>
-<h1> Weather Report</h1>
-<p> Get Your Local weather</p>
-<div class="search-box">
-  <label>enter city or zip code</label>
-  <input type="text"placeholder=" eg New york,1000">
-  <button id="submitBtn">submit</button>
-
-</div>
-
-
+    <div class="container">
+        <div class="head">
+            <h1>Weather Report</h1>
+            <p>Get Your Local Weather</p>
+            <div class="form">
+                <form>
+                    <label for="place">Enter City or Zip Code:</label>
+                    <input type="text" name="place" id="place" placeholder="e.g, New York, 10001">
+                    <button>Submit</button>
+                </form>
+            </div>
+        </div>
+        <div class="display">
+            <div class="place-name">
+                <h2>Current Weather in London, UK <span>GB</span></h2>
+            </div>
+            <div class="weather">
+                <div>
+                    <h1 class="degree">20&degC</h1>
+                    <p>Partly Cloudy</p>
+                </div>
+            </div>
+            <div class="details">
+                <div class="detail">
+                    <h3>Humidity</h3>
+                    <p>65%</p>
+                </div>
+                <div class="detail">
+                    <h3>Wind</h3>
+                    <p>15 km/h</p>
+                </div>
+                <div class="detail">
+                    <h3>Rainfall</h3>
+                    <p>0 mm</p>
+                </div>
+                <div class="detail">
+                    <h3>UV Index</h3>
+                    <p>4 (Moderate)</p>
+                </div>
+                <div class="detail">
+                    <h3>Sunrise</h3>
+                    <p>6:30 AM</p>
+                </div>
+                <div class="detail">
+                    <h3>Sunset</h3>
+                    <p>7:15 PM</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/script.js"></script>
 </body>
 </html>
