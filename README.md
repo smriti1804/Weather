@@ -28,8 +28,8 @@ A simple weather web app built using **HTML, CSS, and JavaScript** that fetches 
 ---
 
 ## 📸 Screenshots
+ <img src="image.jpeg" alt=""> 
 **
-
 ---
 
 ## 🧰 Setup Instructions
