@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather App</title>
-    <link rel="stylesheet" href="/style.css">
+    <!-- use relative paths so the files load when run locally or from repo root -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -12,53 +13,72 @@
             <h1>Weather Report</h1>
             <p>Get Your Local Weather</p>
             <div class="form">
-                <form>
-                    <label for="place">Enter City or Zip Code:</label>
-                    <input type="text" name="place" id="place" placeholder="e.g, New York, 10001">
-                    <button>Submit</button>
+                <!-- lab expects a form we can hook into; give it an id -->
+                <form id="search-form" aria-label="Search city form">
+                    <label for="city-input">Enter City or Zip Code:</label>
+                    <!-- use the lab-required id 'city-input' and name 'city' -->
+                    <input type="text" name="city" id="city-input" placeholder="e.g, New York, 10001" required>
+                    <button type="submit">Submit</button>
                 </form>
             </div>
         </div>
-        <div class="display">
+
+        <!-- START: current weather display section (replace only the existing display block) -->
+        <section id="current-weather" class="display" aria-live="polite" aria-label="Current weather">
             <div class="place-name">
-                <h2>Current Weather in London, UK <span>GB</span></h2>
+                <!-- lab requires #city-name -->
+                <h2 id="city-name">Current Weather in London, UK <span>GB</span></h2>
             </div>
+
             <div class="weather">
                 <div>
-                    <h1 class="degree">20&degC</h1>
-                    <p>Partly Cloudy</p>
+                    <!-- lab requires #temperature and #weather-description and #weather-icon -->
+                    <div class="top-row" style="display:flex; align-items:center; gap:12px;">
+                      <div id="weather-icon" class="icon" aria-hidden="true">
+                        <!-- optional: keep an <img> here or let JS insert one -->
+                      </div>
+                      <h1 id="temperature" class="degree">20&deg;C</h1>
+                    </div>
+
+                    <p id="weather-description">Partly Cloudy</p>
                 </div>
             </div>
+
             <div class="details">
                 <div class="detail">
                     <h3>Humidity</h3>
-                    <p>65%</p>
+                    <!-- lab requires #humidity -->
+                    <p id="humidity">65%</p>
                 </div>
                 <div class="detail">
                     <h3>Wind</h3>
-                    <p>15 km/h</p>
+                    <!-- lab requires #wind -->
+                    <p id="wind">15 km/h</p>
                 </div>
                 <div class="detail">
                     <h3>Rainfall</h3>
-                    <p>0 mm</p>
+                    <p id="rainfall">0 mm</p>
                 </div>
                 <div class="detail">
                     <h3>UV Index</h3>
-                    <p>4 (Moderate)</p>
+                    <p id="uv">4 (Moderate)</p>
                 </div>
                 <div class="detail">
                     <h3>Sunrise</h3>
-                    <p>6:30 AM</p>
+                    <p id="sunrise">6:30 AM</p>
                 </div>
                 <div class="detail">
                     <h3>Sunset</h3>
-                    <p>7:15 PM</p>
+                    <p id="sunset">7:15 PM</p>
                 </div>
             </div>
-        </div>
+
+            <!-- place for script to show errors -->
+            <div id="error" class="error" role="status" aria-live="assertive" style="margin-top:10px;color:#b91c1c;"></div>
+        </section>
+        <!-- END: current weather display section -->
+
     </div>
-    <script src="/script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
-
-<img src="image.jpeg" alt="">
