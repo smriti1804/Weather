@@ -254,6 +254,42 @@ if (form) {
   });
 }
 
+/* =========================
+   Lab 10 additions (minimal)
+   - fetchWeatherData(latitude, longitude) returns simulated 3-day forecast including lat/lon
+   - DOMContentLoaded now calls this to render lab-specific output
+   ========================= */
+
+// Lab10: fetchWeatherData(latitude, longitude) — returns array of 3 simulated forecast objects
+function fetchWeatherData(latitude, longitude) {
+  const weatherConditions = ["Sunny", "Cloudy", "Partly Cloudy", "Rainy", "Thunderstorm", "Foggy"];
+  const forecast = [];
+  const currentDate = new Date();
+
+  for (let i = 1; i <= 3; i++) {
+    const d = new Date(currentDate);
+    d.setDate(currentDate.getDate() + i);
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+    const year = d.getFullYear();
+
+    const temperature = Math.round(Math.random() * 12 + 18); // 18-30°C random example
+    const condition = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
+    const humidityVal = Math.round(Math.random() * 50 + 30); // 30-80%
+
+    forecast.push({
+      date: `${month}/${day}/${year}`,
+      temperature: temperature,
+      condition: condition,
+      humidity: `${humidityVal}%`,
+      latitude: latitude,
+      longitude: longitude
+    });
+  }
+
+  return forecast;
+}
+
 // Load a default city when the page loads (lab sample: Guwahati)
 document.addEventListener("DOMContentLoaded", () => {
   const defaultCity = "Guwahati";
@@ -262,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =========================
      Lab 9: Simulated Geolocation + render simulated forecast
-     Adds latitude & longitude into generated forecast objects
+     (now using Lab10 function fetchWeatherData to satisfy lab)
      ========================= */
 
   // 1) simulated user location (Lab 9 requires simulating geolocation)
@@ -271,18 +307,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return { latitude: 40.7128, longitude: -74.0060 };
   }
 
-  // 2) use the updated generator that accepts lat/lon (we kept generator below compatible)
+  // 2) use fetchWeatherData (Lab10) to generate the lab-required forecast objects (includes lat/lon)
   const simulatedLocation = getUserLocation();
-  const simulatedCity = "Guwahati";
-
-  // 3) generate forecast with coords and render it (so teacher can see lat/lon)
-  const simForecast = generateWeatherForecast(simulatedCity, simulatedLocation.latitude, simulatedLocation.longitude);
-  console.log("Simulated forecast with geolocation:", simForecast);
+  const labForecast = fetchWeatherData(simulatedLocation.latitude, simulatedLocation.longitude);
+  console.log("Lab10 simulated forecast (with coords):", labForecast);
 
   const container = document.querySelector(".forecast-days");
   if (container) {
     container.innerHTML = ""; // clear previous
-    simForecast.forEach(day => {
+    labForecast.forEach(day => {
       const card = document.createElement("div");
       card.className = "day-card";
       card.innerHTML = `
@@ -305,7 +338,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* =========================
    Lab 8: Simulating the 3-Day Forecast
-   (updated generator to accept lat/lon)
+   (your existing generator kept for compatibility)
    ========================= */
 
 function randomBetween(min, max, decimals = 0) {
