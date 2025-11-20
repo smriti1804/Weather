@@ -290,6 +290,23 @@ function fetchWeatherData(latitude, longitude) {
   return forecast;
 }
 
+/* =========================
+   DOMContentLoaded: default city + Lab9/Lab10 simulation with Lab11 error handling
+   - getUserLocation() simulates geolocation and can throw
+   - generateWeatherForecast() now validates city and may throw
+   ========================= */
+
+// Simulated geolocation with error possibility (Lab 11 Task 2)
+function getUserLocation() {
+  const isLocationAvailable = Math.random() > 0.2; // 80% success chance
+  if (!isLocationAvailable) {
+    // Simulate geolocation failure
+    throw new Error("Failed to detect location. Geolocation data is unavailable.");
+  }
+  // Return a sample location (lab examples often use New York)
+  return { latitude: 40.7128, longitude: -74.0060 };
+}
+
 // Load a default city when the page loads (lab sample: Guwahati)
 document.addEventListener("DOMContentLoaded", () => {
   const defaultCity = "Guwahati";
@@ -297,42 +314,51 @@ document.addEventListener("DOMContentLoaded", () => {
   getWeather(defaultCity);
 
   /* =========================
-     Lab 9: Simulated Geolocation + render simulated forecast
-     (now using Lab10 function fetchWeatherData to satisfy lab)
+     Lab 9/10/11: Simulated Geolocation + render simulated forecast using fetchWeatherData()
+     Now wrapped in try/catch per Lab 11 requirements so errors are handled gracefully
      ========================= */
 
-  // 1) simulated user location (Lab 9 requires simulating geolocation)
-  function getUserLocation() {
-    // Example: New York coordinates; replace if your lab requires another city
-    return { latitude: 40.7128, longitude: -74.0060 };
-  }
+  try {
+    // Try to get simulated user location (may throw)
+    const simulatedLocation = getUserLocation();
 
-  // 2) use fetchWeatherData (Lab10) to generate the lab-required forecast objects (includes lat/lon)
-  const simulatedLocation = getUserLocation();
-  const labForecast = fetchWeatherData(simulatedLocation.latitude, simulatedLocation.longitude);
-  console.log("Lab10 simulated forecast (with coords):", labForecast);
+    // Generate lab forecast using the Lab10 function (includes lat/lon)
+    const labForecast = fetchWeatherData(simulatedLocation.latitude, simulatedLocation.longitude);
+    console.log("Lab10 simulated forecast (with coords):", labForecast);
 
-  const container = document.querySelector(".forecast-days");
-  if (container) {
-    container.innerHTML = ""; // clear previous
-    labForecast.forEach(day => {
-      const card = document.createElement("div");
-      card.className = "day-card";
-      card.innerHTML = `
-        <div class="day-date">${day.date}</div>
-        <div class="day-weather-icon">
-          <div style="width:56px;height:56px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.03);color:#fff;font-weight:700;">
-            ${day.condition.split(" ").map(w=>w[0]).join("")}
+    const container = document.querySelector(".forecast-days");
+    if (container) {
+      container.innerHTML = ""; // clear previous
+      labForecast.forEach(day => {
+        const card = document.createElement("div");
+        card.className = "day-card";
+        card.innerHTML = `
+          <div class="day-date">${day.date}</div>
+          <div class="day-weather-icon">
+            <div style="width:56px;height:56px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.03);color:#fff;font-weight:700;">
+              ${day.condition.split(" ").map(w=>w[0]).join("")}
+            </div>
           </div>
-        </div>
-        <div class="day-temperature">${day.temperature}&deg;C</div>
-        <div class="day-description">${day.condition}</div>
-        <div style="margin-top:8px;font-size:13px;color:rgba(255,255,255,0.8);">
-          Lat: ${day.latitude} · Lon: ${day.longitude} · Humidity: ${day.humidity}
-        </div>
-      `;
-      container.appendChild(card);
-    });
+          <div class="day-temperature">${day.temperature}&deg;C</div>
+          <div class="day-description">${day.condition}</div>
+          <div style="margin-top:8px;font-size:13px;color:rgba(255,255,255,0.8);">
+            Lat: ${day.latitude} · Lon: ${day.longitude} · Humidity: ${day.humidity}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Clear any previous error message
+    if (errorEl) errorEl.textContent = "";
+
+  } catch (err) {
+    // Lab11: handle geolocation or forecast generation errors gracefully
+    console.error("Lab11 error:", err.message);
+    if (errorEl) {
+      errorEl.textContent = `Error: ${err.message}`;
+    }
+    // Do not rethrow; allow user to still use the search form etc.
   }
 });
 
@@ -350,8 +376,15 @@ function randomBetween(min, max, decimals = 0) {
  * generateWeatherForecast(city, latitude, longitude)
  * Returns an array of 3 forecast objects for the next 3 days.
  * Each object: { city, date, temperature, condition, humidity, wind, rainfall, uvIndex, latitude, longitude }
+ *
+ * NOTE: Lab11 Task1 — this function now validates the city parameter (throws on invalid)
  */
 function generateWeatherForecast(city = "", latitude = null, longitude = null) {
+  // Lab11 Task1: validate city
+  if (typeof city !== "string" || city.trim() === "") {
+    throw new Error("Invalid city name. Please provide a valid city.");
+  }
+
   const weatherConditions = [
     "Sunny", "Cloudy", "Partly Cloudy", "Rainy", "Thunderstorm", "Foggy"
   ];
@@ -406,6 +439,8 @@ function generateWeatherForecast(city = "", latitude = null, longitude = null) {
  * simulateAndRender(city, latitude, longitude)
  * - Calls generateWeatherForecast() and renders into .forecast-days (if present)
  * - Also returns the generated array (useful for console / practical file)
+ *
+ * Note: this function can throw if city is invalid (Lab11). Caller should wrap in try/catch.
  */
 function simulateAndRender(city = "", latitude = null, longitude = null) {
   const data = generateWeatherForecast(city, latitude, longitude);
