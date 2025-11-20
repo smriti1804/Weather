@@ -76,6 +76,7 @@ async function getForecastFallback(lat, lon) {
 
       const card = document.createElement("div");
       card.className = "day-card";
+      // <<< Minimal change: added Lat/Lon display for fallback cards
       card.innerHTML = `
         <div class="day-date">${weekday}, ${date}</div>
         <div class="day-weather-icon">
@@ -83,6 +84,9 @@ async function getForecastFallback(lat, lon) {
         </div>
         <div class="day-temperature">${temp}&deg;C</div>
         <div class="day-description">${desc}</div>
+        <div style="margin-top:8px;font-size:13px;color:rgba(255,255,255,0.8);">
+          Lat: ${lat} · Lon: ${lon}
+        </div>
       `;
       container.appendChild(card);
     });
@@ -133,6 +137,7 @@ async function getForecast(lat, lon) {
 
       const card = document.createElement("div");
       card.className = "day-card";
+      // <<< Minimal change: added Lat/Lon display for One Call cards
       card.innerHTML = `
         <div class="day-date">${weekday}, ${date}</div>
         <div class="day-weather-icon">
@@ -140,6 +145,9 @@ async function getForecast(lat, lon) {
         </div>
         <div class="day-temperature">${tempDay}&deg;C</div>
         <div class="day-description">${desc}</div>
+        <div style="margin-top:8px;font-size:13px;color:rgba(255,255,255,0.8);">
+          Lat: ${lat} · Lon: ${lon}
+        </div>
       `;
       container.appendChild(card);
     });
@@ -246,15 +254,58 @@ if (form) {
   });
 }
 
-// Load a default city when the page loads (lab sample: Kochi)
+// Load a default city when the page loads (lab sample: Guwahati)
 document.addEventListener("DOMContentLoaded", () => {
   const defaultCity = "Guwahati";
   if (placeInput) placeInput.value = defaultCity;
   getWeather(defaultCity);
+
+  /* =========================
+     Lab 9: Simulated Geolocation + render simulated forecast
+     Adds latitude & longitude into generated forecast objects
+     ========================= */
+
+  // 1) simulated user location (Lab 9 requires simulating geolocation)
+  function getUserLocation() {
+    // Example: New York coordinates; replace if your lab requires another city
+    return { latitude: 40.7128, longitude: -74.0060 };
+  }
+
+  // 2) use the updated generator that accepts lat/lon (we kept generator below compatible)
+  const simulatedLocation = getUserLocation();
+  const simulatedCity = "Guwahati";
+
+  // 3) generate forecast with coords and render it (so teacher can see lat/lon)
+  const simForecast = generateWeatherForecast(simulatedCity, simulatedLocation.latitude, simulatedLocation.longitude);
+  console.log("Simulated forecast with geolocation:", simForecast);
+
+  const container = document.querySelector(".forecast-days");
+  if (container) {
+    container.innerHTML = ""; // clear previous
+    simForecast.forEach(day => {
+      const card = document.createElement("div");
+      card.className = "day-card";
+      card.innerHTML = `
+        <div class="day-date">${day.date}</div>
+        <div class="day-weather-icon">
+          <div style="width:56px;height:56px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.03);color:#fff;font-weight:700;">
+            ${day.condition.split(" ").map(w=>w[0]).join("")}
+          </div>
+        </div>
+        <div class="day-temperature">${day.temperature}&deg;C</div>
+        <div class="day-description">${day.condition}</div>
+        <div style="margin-top:8px;font-size:13px;color:rgba(255,255,255,0.8);">
+          Lat: ${day.latitude} · Lon: ${day.longitude} · Humidity: ${day.humidity}
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
 });
+
 /* =========================
    Lab 8: Simulating the 3-Day Forecast
-   Paste this block JUST BEFORE the DOMContentLoaded listener
+   (updated generator to accept lat/lon)
    ========================= */
 
 function randomBetween(min, max, decimals = 0) {
@@ -263,11 +314,11 @@ function randomBetween(min, max, decimals = 0) {
 }
 
 /**
- * generateWeatherForecast(city)
+ * generateWeatherForecast(city, latitude, longitude)
  * Returns an array of 3 forecast objects for the next 3 days.
- * Each object: { city, date, temperature, condition, humidity, wind, rainfall, uvIndex }
+ * Each object: { city, date, temperature, condition, humidity, wind, rainfall, uvIndex, latitude, longitude }
  */
-function generateWeatherForecast(city = "") {
+function generateWeatherForecast(city = "", latitude = null, longitude = null) {
   const weatherConditions = [
     "Sunny", "Cloudy", "Partly Cloudy", "Rainy", "Thunderstorm", "Foggy"
   ];
@@ -309,7 +360,9 @@ function generateWeatherForecast(city = "") {
       humidity: `${humidity}%`,
       wind: `${wind} m/s`,
       rainfall: `${rainfall} mm`,
-      uvIndex: uvIndex
+      uvIndex: uvIndex,
+      latitude: latitude,
+      longitude: longitude
     });
   }
 
@@ -317,12 +370,12 @@ function generateWeatherForecast(city = "") {
 }
 
 /**
- * simulateAndRender(city)
+ * simulateAndRender(city, latitude, longitude)
  * - Calls generateWeatherForecast() and renders into .forecast-days (if present)
  * - Also returns the generated array (useful for console / practical file)
  */
-function simulateAndRender(city = "") {
-  const data = generateWeatherForecast(city);
+function simulateAndRender(city = "", latitude = null, longitude = null) {
+  const data = generateWeatherForecast(city, latitude, longitude);
   console.log("Simulated 3-day forecast for", city, data);
 
   const container = document.querySelector(".forecast-days");
@@ -343,7 +396,7 @@ function simulateAndRender(city = "") {
       <div class="day-temperature">${day.temperature}&deg;C</div>
       <div class="day-description">${day.condition}</div>
       <div style="margin-top:8px;font-size:13px;color:rgba(255,255,255,0.8);">
-        Humidity: ${day.humidity} · Wind: ${day.wind} · Rain: ${day.rainfall} · UV: ${day.uvIndex}
+        Lat: ${day.latitude} · Lon: ${day.longitude} · Humidity: ${day.humidity} · Wind: ${day.wind} · UV: ${day.uvIndex}
       </div>
     `;
     container.appendChild(card);
