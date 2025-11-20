@@ -1,5 +1,5 @@
 // Replace with your OpenWeatherMap API key
-const apiKey = "83f669a8d48672eb49743c2ff7c41a7c"; // <-- keep your API key here
+const apiKey = "2cfcff55e0af1813d4a96e3604a42d72"; // <-- keep your API key here
 
 // Get references to DOM elements (use lab-required IDs)
 const form = document.getElementById("search-form") || document.querySelector("form");
@@ -25,6 +25,129 @@ function formatTime(timestamp) {
 // Helper: clear previous error
 function clearError() {
   if (errorEl) errorEl.textContent = "";
+}
+
+/**
+ * Fallback: uses 5-day / 3-hour forecast and picks near-midday entries for next 3 days.
+ */
+async function getForecastFallback(lat, lon) {
+  try {
+    const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+    const resp = await fetch(url);
+    if (!resp.ok) {
+      console.warn("Fallback forecast fetch failed:", resp.status);
+      return;
+    }
+    const data = await resp.json();
+    const list = data.list || [];
+
+    // group entries by date (YYYY-MM-DD)
+    const groups = {};
+    list.forEach(item => {
+      const dateKey = new Date(item.dt * 1000).toISOString().split("T")[0];
+      groups[dateKey] = groups[dateKey] || [];
+      groups[dateKey].push(item);
+    });
+
+    // pick next 3 distinct future date keys
+    const keys = Object.keys(groups).sort();
+    const todayKey = new Date().toISOString().split("T")[0];
+    const futureKeys = keys.filter(k => k !== todayKey).slice(0, 3);
+
+    const container = document.querySelector(".forecast-days");
+    if (!container) return;
+    container.innerHTML = "";
+
+    futureKeys.forEach(k => {
+      const dayEntries = groups[k];
+      // choose entry closest to 12:00
+      let chosen = dayEntries.reduce((best, cur) => {
+        const curHour = new Date(cur.dt * 1000).getHours();
+        const bestHour = new Date(best.dt * 1000).getHours();
+        return Math.abs(curHour - 12) < Math.abs(bestHour - 12) ? cur : best;
+      }, dayEntries[0]);
+
+      const dt = new Date(chosen.dt * 1000);
+      const weekday = dt.toLocaleDateString(undefined, { weekday: "short" });
+      const date = dt.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+      const icon = chosen.weather?.[0]?.icon;
+      const desc = chosen.weather?.[0]?.description || "";
+      const temp = Math.round(chosen.main.temp);
+
+      const card = document.createElement("div");
+      card.className = "day-card";
+      card.innerHTML = `
+        <div class="day-date">${weekday}, ${date}</div>
+        <div class="day-weather-icon">
+          ${icon ? `<img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${desc}">` : ""}
+        </div>
+        <div class="day-temperature">${temp}&deg;C</div>
+        <div class="day-description">${desc}</div>
+      `;
+      container.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error("Error in fallback forecast:", err);
+  }
+}
+
+/**
+ * Fetch and display 3-day forecast using One Call (daily).
+ * If One Call fails or doesn't return daily data, automatically fall back to the 5-day forecast.
+ */
+async function getForecast(lat, lon) {
+  if (!lat || !lon) return;
+  try {
+    const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&units=metric&appid=${apiKey}`;
+    const resp = await fetch(url);
+
+    if (!resp.ok) {
+      // If One Call is blocked by plan (401/403) or other error, fall back
+      console.warn("One Call fetch status:", resp.status);
+      // try fallback
+      await getForecastFallback(lat, lon);
+      return;
+    }
+
+    const data = await resp.json();
+
+    // If daily data is missing or too short, fallback
+    if (!data.daily || data.daily.length < 4) {
+      await getForecastFallback(lat, lon);
+      return;
+    }
+
+    const days = data.daily.slice(1, 4); // next 3 days
+    const container = document.querySelector(".forecast-days");
+    if (!container) return;
+    container.innerHTML = "";
+
+    days.forEach(day => {
+      const dt = new Date(day.dt * 1000);
+      const weekday = dt.toLocaleDateString(undefined, { weekday: "short" });
+      const date = dt.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+      const icon = day.weather?.[0]?.icon;
+      const desc = day.weather?.[0]?.description || "";
+      const tempDay = typeof day.temp?.day === "number" ? Math.round(day.temp.day) : "--";
+
+      const card = document.createElement("div");
+      card.className = "day-card";
+      card.innerHTML = `
+        <div class="day-date">${weekday}, ${date}</div>
+        <div class="day-weather-icon">
+          ${icon ? `<img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${desc}">` : ""}
+        </div>
+        <div class="day-temperature">${tempDay}&deg;C</div>
+        <div class="day-description">${desc}</div>
+      `;
+      container.appendChild(card);
+    });
+  } catch (err) {
+    console.error("Error getting forecast:", err);
+    // on error, try fallback once
+    await getForecastFallback(lat, lon);
+  }
 }
 
 // Fetch weather data
@@ -64,7 +187,6 @@ async function getWeather(place) {
     if (temperatureEl) temperatureEl.innerHTML = `${Math.round(data.main.temp)}&deg;C`;
     if (weatherDescEl) {
       const desc = data.weather?.[0]?.description || "";
-      // capitalize each word
       weatherDescEl.textContent = desc.split(" ").map(w => w ? (w[0].toUpperCase() + w.slice(1)) : "").join(" ");
     }
     if (humidityEl) humidityEl.textContent = `${data.main.humidity}%`;
@@ -87,6 +209,11 @@ async function getWeather(place) {
         img.height = 64;
         weatherIconEl.appendChild(img);
       }
+    }
+
+    // --- NEW: fetch 3-day forecast using coordinates (Lab 7) ---
+    if (data.coord && data.coord.lat && data.coord.lon) {
+      getForecast(data.coord.lat, data.coord.lon);
     }
 
   } catch (error) {

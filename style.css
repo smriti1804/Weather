@@ -1,6 +1,5 @@
 /* =========================
-   Glassmorphism theme — stylish + classy
-   Replace your existing style.css with this
+   Glassmorphism theme for Weather App
    ========================= */
 
 /* --- variables --- */
@@ -255,3 +254,66 @@ body::before{
 @media (prefers-reduced-motion: reduce){
   * { transition: none !important; animation: none !important; }
 }
+/* === Lab 7: 3-Day Forecast styling — APPEND ONLY === */
+.forecast {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px);
+}
+
+.forecast h2 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  color: rgba(255,255,255,0.95);
+  font-weight: 700;
+}
+
+.forecast-days {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.day-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.32);
+}
+
+.day-date {
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.day-weather-icon img {
+  width: 56px;
+  height: 56px;
+}
+
+.day-temperature {
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 6px;
+  color: white;
+}
+
+.day-description {
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+  margin-top: 6px;
+  text-transform: capitalize;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 520px) {
+  .forecast-days { grid-template-columns: 1fr; }
+}
+
